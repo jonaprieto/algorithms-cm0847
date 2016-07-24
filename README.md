@@ -1,2 +1,17 @@
-# algorithms-cm0847
-EAFTIT Algorithms course 20162
+Algorithms - CM0847 (2016-2)
+---
+
+This repository keeps implementation of some algorithms written in `Haskell`, basically, algorithms from the literature of the course of logic at EAFIT University.
+
+Lecturer: Juan Francisco Cardona McCormick `@fcardona`
+
+Links
+---
+- http://www.algorist.com/
+- http://www.algorithm.cs.sunysb.edu/algowiki/index.php/The_Algorithms_Design_Manual_(Second_Edition)
+- https://github.com/liuxinyu95/AlgoXY
+
+References
+---
+
+The Algorithms Design Manual (Second Edition). Steven Skiena.
