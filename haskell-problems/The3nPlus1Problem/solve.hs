@@ -1,7 +1,7 @@
 -- @Author: jonaprieto
 -- @Date:   2016-07-29 00:55:59
 -- @Last Modified by:   jonaprieto
--- @Last Modified time: 2016-07-29 10:30:03
+-- @Last Modified time: 2016-07-29 10:44:34
 
 -- The 3n + 1 problem
 module Main
@@ -37,8 +37,8 @@ collatz :: Int -> [(Int,Int)] -> [(Int,Int)]
 collatz 1 _ = [(1,1)]
 collatz n memo  
     | not (null ans)        = ans
-    | n `mod` 2 == 0        = (n, 1 + len1) : headsnd even
-    | otherwise             = (n, 1 + len2) : headsnd odd
+    | n `mod` 2 == 0        = (n, 1 + headsnd even) : even
+    | otherwise             = (n, 1 + headsnd odd)  : odd
     where
         ans :: [(Int, Int)]
         ans = dropWhile ((n/=).fst) memo
@@ -50,8 +50,10 @@ main :: IO ()
 main = do
         end <- isEOF
         unless end $ do
-            line <- getLine
-            let {ab = map (\x->read x :: Int) (splitOn " " line);
+            linee <- getLine
+            let {
+                ab = map (\x->read x :: Int) (splitOn " " linee);
                 a = head ab; b = ab !! 1
             } in
-                print (solve [a..b])
+                putStrLn (linee ++ " " ++ show (solve [a..b]))
+            main
