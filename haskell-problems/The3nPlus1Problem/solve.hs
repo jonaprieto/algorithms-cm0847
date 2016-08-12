@@ -1,59 +1,61 @@
 -- @Author: jonaprieto
 -- @Date:   2016-07-29 00:55:59
 -- @Last Modified by:   jonaprieto
--- @Last Modified time: 2016-07-29 10:44:34
+-- @Last Modified time: 2016-08-11 23:26:01
 
 -- The 3n + 1 problem
+
 module Main
     where
 
-import      System.IO (isEOF)
-import      Data.List.Split (splitOn)
-import      Control.Monad (unless)
+import           Control.Monad   (unless)
+import           Data.List.Split (splitOn)
+import           System.IO       (isEOF)
 
-headsnd :: [(Int,Int)] -> Int
+headsnd ∷ [(Int, Int)] → Int
 headsnd = snd . head
 
-solve :: [Int] -> Int
+solve ∷ [Int] → Int
 solve interval = solve' interval []
 
-solve' :: [Int] -> [(Int,Int)] -> Int
-solve' [] visited = headsnd visited
+solve' ∷ [Int] → [(Int, Int)] → Int
+solve' [] visited         = headsnd visited
 solve' (x:xs) visited
-    | 0 < fst occur         = max (snd occur) nextVal
-    | otherwise             = max (headsnd newvisted) nextVal
-    where
-        occur  = find x visited
-        newvisted = collatz x visited
-        nextVal = solve' xs newvisted
+  | 0 < fst occur         = max (snd occur) nextVal
+  | otherwise             = max (headsnd newvisted) nextVal
+  where
+    occur ∷ (Int,Int)
+    occur     = find x visited
+    newvisted ∷ [(Int, Int)]
+    newvisted = collatz x visited
+    nextVal ∷ Int
+    nextVal   = solve' xs newvisted
 
-find :: Int -> [(Int, Int)] -> (Int,Int)
-find x [] = (-1, minBound ::Int )
+find ∷ Int → [(Int, Int)] → (Int,Int)
+find _ [] = (-1, minBound ∷ Int )
 find x (y:ys)
-    | x == fst y            = y
-    | otherwise             = find x ys
+  | x == fst y            = y
+  | otherwise             = find x ys
 
-collatz :: Int -> [(Int,Int)] -> [(Int,Int)]
+collatz ∷ Int → [(Int, Int)] → [(Int, Int)]
 collatz 1 _ = [(1,1)]
-collatz n memo  
-    | not (null ans)        = ans
-    | n `mod` 2 == 0        = (n, 1 + headsnd even) : even
-    | otherwise             = (n, 1 + headsnd odd)  : odd
-    where
-        ans :: [(Int, Int)]
-        ans = dropWhile ((n/=).fst) memo
-        even, odd :: [(Int, Int)]
-        even  = collatz (n `div` 2) memo
-        odd   = collatz (3*n + 1) memo
+collatz n memo
+  | not (null ans)        = ans
+  | n `mod` 2 == 0        = (n, 1 + headsnd evenN) : evenN
+  | otherwise             = (n, 1 + headsnd oddN)  : oddN
+  where
+    ans ∷ [(Int, Int)]
+    ans = dropWhile ((n/=).fst) memo
+    evenN, oddN ∷ [(Int, Int)]
+    evenN  = collatz (n `div` 2) memo
+    oddN   = collatz (3*n + 1) memo
 
-main :: IO ()
+main ∷ IO ()
 main = do
-        end <- isEOF
-        unless end $ do
-            linee <- getLine
-            let {
-                ab = map (\x->read x :: Int) (splitOn " " linee);
-                a = head ab; b = ab !! 1
-            } in
-                putStrLn (linee ++ " " ++ show (solve [a..b]))
-            main
+  end ← isEOF
+  unless end $ do
+    ab ← getLine
+    let a,b ∷ [Int]
+        [a,b] = map (\x → read x ∷ Int) (splitOn " " ab)
+    putStrLn $ ab ++ " " ++ show $ solve [a..b]
+    main
