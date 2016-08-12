@@ -1,7 +1,7 @@
 -- @Author: jonaprieto
 -- @Date:   2016-07-29 00:55:59
 -- @Last Modified by:   jonaprieto
--- @Last Modified time: 2016-08-11 23:26:01
+-- @Last Modified time: 2016-08-11 23:27:00
 
 -- The 3n + 1 problem
 
@@ -25,7 +25,7 @@ solve' (x:xs) visited
   | otherwise             = max (headsnd newvisted) nextVal
   where
     occur ∷ (Int,Int)
-    occur     = find x visited
+    occur = find x visited
     newvisted ∷ [(Int, Int)]
     newvisted = collatz x visited
     nextVal ∷ Int
