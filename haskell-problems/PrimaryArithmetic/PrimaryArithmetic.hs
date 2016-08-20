@@ -1,7 +1,7 @@
 -- @Author: jonaprieto
 -- @Date:   2016-08-11 23:00:06
--- @Last Modified by:   jonaprieto
--- @Last Modified time: 2016-08-11 23:01:16
+-- @Last Modified by:   Jonathan Prieto-Cubides
+-- @Last Modified time: 2016-08-19 15:02:29
 
 {-# LANGUAGE UnicodeSyntax #-}
 
@@ -30,7 +30,7 @@ countCarries' n m carry carries
 main ∷ IO ()
 main = do
   nm ← getLine
-  let [n,m] = map (\x → read x ∷ Int) (splitOn " " nm)
+  let [n, m] = map (\x → read x ∷ Int) (splitOn " " nm)
   unless ((n+m)== 0) $ do
     case countCarries n m of
       0 → putStrLn "No carry operation."
