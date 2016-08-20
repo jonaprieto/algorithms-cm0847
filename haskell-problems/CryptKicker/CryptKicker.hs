@@ -6,26 +6,22 @@
 module Main
     where
 
-import           Control.Applicative ((<*>))
 import           Control.Monad       (replicateM, unless)
 import qualified Data.HashMap.Strict as M
-import           Data.List           (delete, nub, intercalate)
+import           Data.List           (delete, nub, sort)
 import           Data.List.Split     (splitOn)
 import           Data.Maybe          (fromJust, fromMaybe, isJust, isNothing)
-import qualified Data.Set            as S
 import           System.IO           (isEOF)
 
 type Wrd    = String
 type Ltr    = Char
 type Map    = M.HashMap
-type Set    = S.Set
 type Dict   = Map Wrd Wrd
 type Cipher = Map Char Char
 
 
-
 decipher ∷  [Wrd] → Map Wrd [Wrd] → Maybe Dict → Maybe Cipher →  Maybe Dict
-decipher  [] mapa dict cipher = dict
+decipher  [] _ dict _ = dict
 decipher l@(w:ws) mapa dict cipher
   | noValid cipher                          = Nothing
   | noValid dict                            = Nothing
@@ -37,7 +33,7 @@ decipher l@(w:ws) mapa dict cipher
   | otherwise                               = nextChoiceStep
   where
     choices ∷ [Wrd]
-    choices = fromJust $ M.lookup w mapa
+    choices = sort $ fromJust $ M.lookup w mapa
 
     m ∷ Wrd
     m  = head choices
@@ -71,9 +67,11 @@ removeOnlyWrd mapa w d = M.insert w newVal mapa
 addWrdDict ∷ Maybe Dict → Wrd → Wrd → Maybe Dict
 addWrdDict dict w m = Just $ M.insert w m (fromJust dict)
 
+
 updateCipher ∷ Cipher → Wrd → Wrd → Maybe Cipher
 updateCipher cipher [] []   = Just cipher
 updateCipher _ [] _         = Nothing
+updateCipher _ _ []         = Nothing
 updateCipher cipher p@(w:ws) m@(r:rs)
   | breakCipher cipher p m  = Nothing
   | otherwise               = updateCipher updated ws rs
@@ -82,20 +80,22 @@ updateCipher cipher p@(w:ws) m@(r:rs)
     updated = M.insert w r cipher
 
 breakCipher ∷ Cipher → Wrd → Wrd → Bool
-breakCipher _ [] _ = True
+breakCipher _ [] _ = False
+breakCipher _ _ [] = False
 breakCipher cipher (w:ws) (r:rs)
-  | replacement /= r   = False
-  | otherwise          = breakCipher cipher ws rs
+  | M.member w cipher           = replacement /= r
+  | r `elem` M.elems cipher     = True
+  | otherwise                   = breakCipher cipher ws rs
   where
     replacement ∷ Char
-    replacement = (M.lookupDefault r w cipher)
+    replacement = M.lookupDefault r w cipher
 
 
 validMatch ∷ Wrd → Wrd → Cipher → Bool
 validMatch w r cipher
-  | length w /= length r                    = False
-  | go == nub go && from == nub from        = True
-  | otherwise                               = not $ breakCipher cipher w r
+  | length w /= length r               = False
+  | go /= nub go || from /= nub from   = False
+  | otherwise                          = not $ breakCipher cipher w r
   where
     simplied ∷ [(Ltr, Ltr)]
     simplied = nub $ zip w r
@@ -113,28 +113,39 @@ noValid ∷ Maybe a → Bool
 noValid = isNothing
 
 showLns ∷ [Wrd] → IO ()
-showLns = putStrLn . (intercalate " ")
+showLns = putStrLn . unwords
 
 solveCase ∷ [Wrd] → IO ()
-solveCase dict' = do
+solveCase dictionary = do
   end   ← isEOF
   unless end $ do
     ls  ← getLine
-    let ws = splitOn " " ls
-    let cifra = Just  M.empty
-    let dict = Just M.empty
 
-    let xs = M.fromListWith (++) ( map (\p → (length p, [p])) dict')
-    let mapa = M.fromList $ map (\p → (p, fromMaybe [] (M.lookup (length p) xs))) ws
-    case decipher ws mapa dict cifra of
-      Just dd → showLns $ map (\p → fromJust $ M.lookup p dd) ws
-      _ → showLns $ map (\p → concat (replicate (length p) "*")) ws
-    solveCase dict'
+    let wds ∷ [Wrd]
+        wds = splitOn " " ls
+
+    let cipher ∷ Maybe Cipher
+        cipher = Just  M.empty
+
+    let dict ∷ Maybe Dict
+        dict = Just M.empty
+
+    let xs ∷ Map Int [Wrd]
+        xs = M.fromListWith (++) (map (\p → (length p, [p])) dictionary)
+
+    let mapa ∷ Map Wrd [Wrd]
+        mapa =
+          M.fromList $ map (\p → (p, fromMaybe [] (M.lookup (length p) xs))) wds
+
+    case decipher wds mapa dict cipher of
+      Just dd → showLns $ map (\p → fromJust $ M.lookup p dd) wds
+      _       → showLns $ map (\p → concat (replicate (length p) "*")) wds
+
+    solveCase dictionary
 
 main ∷ IO ()
 main = do
   strN  ← getLine
   let n = read strN ∷ Int
-  dict'  ← replicateM n (const getLine 1)
-  end   ← isEOF
-  solveCase dict'
+  dict  ← replicateM n getLine
+  solveCase dict
