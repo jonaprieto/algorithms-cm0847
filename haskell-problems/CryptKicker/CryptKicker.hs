@@ -23,6 +23,39 @@ type Dict   = Map Wrd Wrd
 type Cipher = Map Char Char
 
 
+
+decipher ∷  [Wrd] → Map Wrd [Wrd] → Maybe Dict → Maybe Cipher →  Maybe Dict
+decipher  [] mapa dict cipher = dict
+decipher l@(w:ws) mapa dict cipher
+  | noValid cipher                          = Nothing
+  | noValid dict                            = Nothing
+  | not $ M.member w mapa                   = Nothing
+  | hasTranslation w dict                   = decipher ws mapa dict cipher
+  | null choices                            = Nothing
+  | not $ validMatch w m cipher'            = nextChoiceStep
+  | isJust takeChoice                       = takeChoice
+  | otherwise                               = nextChoiceStep
+  where
+    choices ∷ [Wrd]
+    choices = fromJust $ M.lookup w mapa
+
+    m ∷ Wrd
+    m  = head choices
+
+    takeChoice ∷ Maybe Dict
+    takeChoice = decipher ws (removeWrd mapa m) (addWrdDict dict w m) (updateCipher cipher' w m )
+
+    nextChoiceStep ∷ Maybe Dict
+    nextChoiceStep = decipher l (removeOnlyWrd mapa w m) dict cipher
+
+    cipher' ∷ Cipher
+    cipher' = fromJust cipher
+
+hasTranslation ∷ Wrd → Maybe Dict → Bool
+hasTranslation w dict = case dict of
+  Just d → M.member w d
+  _      → False
+
 removeWrd ∷ Map Wrd [Wrd] → Wrd → Map Wrd [Wrd]
 removeWrd mapa d = M.map (delete d) mapa
 
@@ -37,33 +70,6 @@ removeOnlyWrd mapa w d = M.insert w newVal mapa
 
 addWrdDict ∷ Maybe Dict → Wrd → Wrd → Maybe Dict
 addWrdDict dict w m = Just $ M.insert w m (fromJust dict)
-
-decipher ∷  [Wrd] → Map Wrd [Wrd] → Maybe Dict → Maybe Cipher →  Maybe Dict
-decipher  [] mapa dict cifra = dict
-decipher l@(w:ws) mapa dict cifra
-  | isNothing cifra = Nothing
-  | isNothing dict  = Nothing
-  | not (M.member w mapa) = Nothing
-  | M.member w (fromJust dict) = decipher ws mapa dict cifra
-  | null alternativas =  Nothing
-  | not (validMatch w m (fromJust cifra)) = nextChoice
-  | isJust nextLevel = nextLevel
-  | otherwise =  nextChoice
-  where
-    alternativas ∷ [Wrd]
-    alternativas = fromJust $ M.lookup w mapa
-
-    m ∷ Wrd
-    m  = head alternativas
-
-    nextLevel ∷ Maybe Dict
-    nextLevel = decipher ws (removeWrd mapa m) (addWrdDict dict w m) (updateCipher (fromJust cifra) w m )
-
-    nextChoice ∷ Maybe Dict
-    nextChoice = decipher l (removeOnlyWrd mapa w m) dict cifra
-
--- applyCipher ∷ Cipher → Wrd → Wrd
--- applyCipher cipher wrd = map (\c  → M.lookupDefault c c cipher) wrd
 
 updateCipher ∷ Cipher → Wrd → Wrd → Maybe Cipher
 updateCipher cipher [] []   = Just cipher
@@ -99,6 +105,12 @@ validMatch w r cipher
 
     from ∷ [Ltr]
     from = map snd simplied
+
+valid ∷ Maybe a → Bool
+valid = isJust
+
+noValid ∷ Maybe a → Bool
+noValid = isNothing
 
 showLns ∷ [Wrd] → IO ()
 showLns = putStrLn . (intercalate " ")
