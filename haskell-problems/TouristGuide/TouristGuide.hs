@@ -18,7 +18,7 @@ instance Eq (Edge) where
   Edge x1 y1 z1 == Edge x2 y2 z2 = x1 == x2 && y1 == y2 && z1 == z2
 
 instance Ord (Edge) where
-  (Edge _ _ x) `compare` (Edge _ _ y) = x `compare` y
+  (Edge _ _ x) <= (Edge _ _ y) = x >= y
 
 kruskal :: [Edge] -> [Edge]
 kruskal = fst . foldl mst ([],[]) . sort
@@ -39,7 +39,6 @@ mst (es, sets) e@(Edge p q _) = step $ extract sets where
 
 readEdge ∷ IO Edge
 readEdge = do
-
   ln ← getLine
   let from, go, weight ∷ Int
       [from, go, weight] = map read $ splitOn " " ln
@@ -50,35 +49,47 @@ readEdge = do
   return edge
 
 minEdge ∷ [Edge] → Int
+minEdge [] = maxBound ∷ Int
 minEdge (Edge _ _ w: rest) = min w $ minEdge rest
 
 readCase ∷ Int → IO ()
 readCase nCase = do
-  ln ← getLine
+  end ← isEOF
+  unless end $ do
+    ln ← getLine
 
-  let n, r ∷ Int
-      [n, r] = map read $ splitOn " " ln
+    let n, r ∷ Int
+        [n, r] = map read $ splitOn " " ln
 
-  unless (n==0 && r == 0) $ return ()
-  edges ∷ [Edge] ← mapM (\_→readEdge) $ replicate r 1
-  ln ← getLine
+    unless (n==0 && r == 0) $ return ()
 
-  let source, goal, turists ∷ Int
-      [source, goal, turists] = map read $ splitOn " " ln
+    edges ∷ [Edge] ← mapM (\_→readEdge) $ replicate r 1
 
-  let mst ∷ [Edge]
-      mst = kruskal edges
+    end ← isEOF
+    unless end $ do
 
-  let minWeight ∷ Int
-      minWeight = minEdge mst
+      ln ← getLine
 
-  let ans ∷ Int
-      ans = 5
-      -- ans = (turists + minWeight - 1) `div` minWeight
+      let source, goal, tourists ∷ Int
+          [source, goal, tourists] = map read $ splitOn " " ln
 
-  putStrLn $ "Scenario #" ++ show nCase
-  putStrLn $ "Minimum Number of Trips = " ++ show ans
-  readCase (nCase + 1)
+      let mst ∷ [Edge]
+          mst = kruskal edges
+
+      -- print mst
+
+      let minWeight ∷ Int
+          minWeight = minEdge mst
+
+      -- print tourists
+      -- print minWeight
+
+      let ans ∷ Int
+          ans = (tourists + minWeight - 1) `div` minWeight
+
+      putStrLn $ "Scenario #" ++ show nCase
+      putStrLn $ "Minimum Number of Trips = " ++ show ans
+      readCase (nCase + 1)
 
 main ∷ IO ()
 main = do
@@ -86,9 +97,3 @@ main = do
   unless end $ do
     readCase 1
 
-
-
-
-
-
-    print 1
