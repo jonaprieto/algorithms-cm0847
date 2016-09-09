@@ -1,7 +1,4 @@
--- @Author: jonaprieto
--- @Date:   2016-08-11 23:00:06
--- @Last Modified by:   Jonathan Prieto-Cubides
--- @Last Modified time: 2016-08-19 15:02:29
+-- | PrimaryArithmetic Problem
 
 {-# LANGUAGE UnicodeSyntax #-}
 

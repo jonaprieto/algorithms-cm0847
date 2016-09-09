@@ -1,4 +1,3 @@
--- @Author: Jonathan Prieto-Cubides
 -- | CryptKicker Problem
 
 {-# LANGUAGE UnicodeSyntax #-}

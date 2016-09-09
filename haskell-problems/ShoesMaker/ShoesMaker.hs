@@ -1,4 +1,4 @@
--- | Problem #10026 Shoemaker's Problem
+-- | Shoemaker Problem
 
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE UnicodeSyntax       #-}

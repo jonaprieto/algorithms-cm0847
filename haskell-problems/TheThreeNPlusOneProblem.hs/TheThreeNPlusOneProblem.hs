@@ -1,5 +1,4 @@
--- @Author: jonaprieto
--- | The 3n + 1 problem
+-- | The 3n + 1 Problem
 
 module Main
     where
