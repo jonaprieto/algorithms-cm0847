@@ -12,13 +12,16 @@ import           System.IO       (isEOF)
 import           Data.List       (sort)
 import           Data.Set        (Set, fromList, insert, member, union)
 
-data Edge = Edge Int Int Int deriving Show
+data Edge = Edge Int Int Int
+
+instance Show Edge where
+  show (Edge _ _ e) = show e ++ "\n"
 
 instance Eq (Edge) where
   Edge x1 y1 z1 == Edge x2 y2 z2 = x1 == x2 && y1 == y2 && z1 == z2
 
 instance Ord (Edge) where
-  (Edge _ _ x) <= (Edge _ _ y) = x >= y
+  (Edge _ _ x) <= (Edge _ _ y) = x <= y
 
 kruskal :: [Edge] -> [Edge]
 kruskal = fst . foldl mst ([],[]) . sort
@@ -44,13 +47,13 @@ readEdge = do
       [from, go, weight] = map read $ splitOn " " ln
 
   let edge ∷ Edge
-      edge = Edge from go (weight-1)
+      edge = Edge from go (-1 * (weight - 1) )
 
   return edge
 
 minEdge ∷ [Edge] → Int
 minEdge [] = maxBound ∷ Int
-minEdge (Edge _ _ w: rest) = min w $ minEdge rest
+minEdge (Edge _ _ w : rest) = min w $ minEdge rest
 
 readCase ∷ Int → IO ()
 readCase nCase = do
@@ -63,33 +66,38 @@ readCase nCase = do
 
     unless (n==0 && r == 0) $ return ()
 
-    edges ∷ [Edge] ← mapM (\_→readEdge) $ replicate r 1
+    edges ∷ [Edge] ← mapM (\_→ readEdge) $ replicate r 1
 
     end ← isEOF
     unless end $ do
 
       ln ← getLine
+      unless (nCase == 1) $ putStr "\n"
 
       let source, goal, tourists ∷ Int
           [source, goal, tourists] = map read $ splitOn " " ln
 
       let mst ∷ [Edge]
           mst = kruskal edges
-
+      -- print "arbol"
+      -- print edges
+      -- print "mst"
       -- print mst
 
       let minWeight ∷ Int
-          minWeight = minEdge mst
+          minWeight = -1 * minEdge mst
 
       -- print tourists
       -- print minWeight
 
       let ans ∷ Int
-          ans = (tourists + minWeight - 1) `div` minWeight
+          ans = if minWeight > 0
+            then (tourists + minWeight - 1) `div` minWeight
+            else 0
 
       putStrLn $ "Scenario #" ++ show nCase
       putStrLn $ "Minimum Number of Trips = " ++ show ans
-      readCase (nCase + 1)
+      readCase $ nCase + 1
 
 main ∷ IO ()
 main = do
