@@ -1,5 +1,10 @@
+
+-- | The Tourist Guide Problem
+
+{-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE UnicodeSyntax       #-}
+
 
 module Main
   where
@@ -9,13 +14,13 @@ import           Data.List.Split (splitOn)
 import           System.Exit     (exitSuccess)
 import           System.IO       (isEOF)
 
-import           Data.List       (sort)
+import           Data.List       (sort, nub)
 import           Data.Set        (Set, fromList, insert, member, union)
 
 data Edge = Edge Int Int Int
 
 instance Show Edge where
-  show (Edge _ _ e) = show e ++ "\n"
+  show (Edge a b e) = show a ++ " → " ++ show b ++ " : " ++ show e ++ "\n"
 
 instance Eq (Edge) where
   Edge x1 y1 z1 == Edge x2 y2 z2 = x1 == x2 && y1 == y2 && z1 == z2
@@ -47,13 +52,42 @@ readEdge = do
       [from, go, weight] = map read $ splitOn " " ln
 
   let edge ∷ Edge
-      edge = Edge from go (-1 * (weight - 1) )
+      edge = Edge from go $ -1 * weight
 
   return edge
 
-minEdge ∷ [Edge] → Int
-minEdge [] = maxBound ∷ Int
-minEdge (Edge _ _ w : rest) = min w $ minEdge rest
+inNode ∷ Edge → Int
+inNode (Edge a _ _ ) = a
+
+outNode ∷ Edge → Int
+outNode (Edge _ b _ ) = b
+
+weightEdge ∷ Edge → Int
+weightEdge (Edge _ _ w) = w
+
+-- all edges that out from source S taking into
+-- account the viseted nodes
+inS ∷ [Edge] → [Int] → Int → [Edge]
+inS xs visitados s =
+  [ edge | edge ← xs,
+    s == inNode edge,
+    not $ outNode edge `elem` visitados
+  ]
+
+weightsPaths ∷ [Edge] → [Int] → Int → Int → [[Int]]
+weightsPaths xs visitados s t
+  | s == t = [[]]
+  | null ins = [[minBound∷Int]]
+  | otherwise = paths'
+  where
+    ins ∷ [Edge]
+    ins = inS xs visitados s
+
+    paths ∷ Edge → [[Int]]
+    paths edge = weightsPaths xs (s:visitados) (outNode edge) t
+
+    paths' ∷ [[Int]]
+    paths' = [ (weightEdge edge):p | edge ← ins, p ← paths edge]
 
 readCase ∷ Int → IO ()
 readCase nCase = do
@@ -64,7 +98,7 @@ readCase nCase = do
     let n, r ∷ Int
         [n, r] = map read $ splitOn " " ln
 
-    unless (n==0 && r == 0) $ return ()
+    unless (n == 0 && r == 0) $ return ()
 
     edges ∷ [Edge] ← mapM (\_→ readEdge) $ replicate r 1
 
@@ -78,22 +112,39 @@ readCase nCase = do
           [source, goal, tourists] = map read $ splitOn " " ln
 
       let mst ∷ [Edge]
-          mst = kruskal edges
-      -- print "arbol"
-      -- print edges
-      -- print "mst"
-      -- print mst
+          mst = map (\(Edge a b w) → Edge a b (-1*w)) $ kruskal edges
+
+      let tree ∷ [Edge]
+          tree = nub $ mst  ++ map (\(Edge a b w)→ Edge b a w) mst
+
+      let weightspaths ∷ [[Int]]
+          weightspaths = weightsPaths tree [] source goal
+
+      let minEdges ∷ [Int]
+          minEdges = [ if null ws then minBound ∷ Int else minimum ws | ws ← weightspaths]
 
       let minWeight ∷ Int
-          minWeight = -1 * minEdge mst
-
-      -- print tourists
-      -- print minWeight
+          minWeight = (maximum minEdges) - 1
 
       let ans ∷ Int
-          ans = if minWeight > 0
-            then (tourists + minWeight - 1) `div` minWeight
-            else 0
+          ans =
+            if | tourists == 0   → 0
+               | source == goal  → 1
+               | otherwise       →
+                  (tourists + minWeight - 1) `div` minWeight
+
+      -- putStrLn $ "source: " ++ show source
+      -- putStrLn $ "goal d: " ++ show goal
+
+      -- print "mst"
+      -- print tree
+
+      -- putStrLn "inS: "
+      -- putStrLn . show $ inS tree [] source
+
+      -- print $ "tourists: " ++ show tourists
+      -- print $ "minWeight: " ++ show minWeight
+
 
       putStrLn $ "Scenario #" ++ show nCase
       putStrLn $ "Minimum Number of Trips = " ++ show ans
