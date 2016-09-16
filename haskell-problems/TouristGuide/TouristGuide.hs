@@ -14,7 +14,7 @@ import           Data.List.Split (splitOn)
 import           System.Exit     (exitSuccess)
 import           System.IO       (isEOF)
 
-import           Data.List       (sort, nub)
+import           Data.List       (nub, sort)
 import           Data.Set        (Set, fromList, insert, member, union)
 
 data Edge = Edge Int Int Int
@@ -68,23 +68,23 @@ weightEdge (Edge _ _ w) = w
 -- all edges that out from source S taking into
 -- account the viseted nodes
 inS ∷ [Edge] → [Int] → Int → [Edge]
-inS xs visitados s =
+inS xs visited s =
   [ edge | edge ← xs,
     s == inNode edge,
-    not $ outNode edge `elem` visitados
+    not $ outNode edge `elem` visited
   ]
 
 weightsPaths ∷ [Edge] → [Int] → Int → Int → [[Int]]
-weightsPaths xs visitados s t
+weightsPaths xs visited s t
   | s == t = [[]]
   | null ins = [[minBound∷Int]]
   | otherwise = paths'
   where
     ins ∷ [Edge]
-    ins = inS xs visitados s
+    ins = inS xs visited s
 
     paths ∷ Edge → [[Int]]
-    paths edge = weightsPaths xs (s:visitados) (outNode edge) t
+    paths edge = weightsPaths xs (s:visited) (outNode edge) t
 
     paths' ∷ [[Int]]
     paths' = [ (weightEdge edge):p | edge ← ins, p ← paths edge]
@@ -133,19 +133,6 @@ readCase nCase = do
                | otherwise       →
                   (tourists + minWeight - 1) `div` minWeight
 
-      -- putStrLn $ "source: " ++ show source
-      -- putStrLn $ "goal d: " ++ show goal
-
-      -- print "mst"
-      -- print tree
-
-      -- putStrLn "inS: "
-      -- putStrLn . show $ inS tree [] source
-
-      -- print $ "tourists: " ++ show tourists
-      -- print $ "minWeight: " ++ show minWeight
-
-
       putStrLn $ "Scenario #" ++ show nCase
       putStrLn $ "Minimum Number of Trips = " ++ show ans
       readCase $ nCase + 1
@@ -155,4 +142,3 @@ main = do
   end ← isEOF
   unless end $ do
     readCase 1
-
