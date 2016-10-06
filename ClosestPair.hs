@@ -4,7 +4,7 @@
 -- @Last Modified time: 2016-07-24 14:37:34
 module ClosestPair where
 
-import Data.List
+import           Data.List
 
 data Pto = Pto Int Int
     deriving (Eq)

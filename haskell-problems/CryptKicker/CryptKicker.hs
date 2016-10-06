@@ -1,6 +1,8 @@
+
 -- | CryptKicker Problem
 
 {-# LANGUAGE UnicodeSyntax #-}
+
 
 module Main
     where
@@ -11,6 +13,7 @@ import           Data.List           (delete, nub, sort)
 import           Data.List.Split     (splitOn)
 import           Data.Maybe          (fromJust, fromMaybe, isJust, isNothing)
 import           System.IO           (isEOF)
+
 
 type Wrd    = String
 type Ltr    = Char

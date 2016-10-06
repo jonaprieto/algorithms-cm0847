@@ -2,6 +2,7 @@ Solution
 ----
 
 #### A little description of the problem.
+
 Input: We have a list of words of our language.
 The cipher is a permutation of the alphabet.
 Additionly, in the input, the problem asks us,

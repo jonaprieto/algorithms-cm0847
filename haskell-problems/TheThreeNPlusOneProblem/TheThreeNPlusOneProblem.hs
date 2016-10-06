@@ -1,5 +1,8 @@
 -- | The 3n + 1 Problem
 
+{-# LANGUAGE UnicodeSyntax #-}
+
+
 module Main
     where
 
@@ -52,10 +55,11 @@ main ∷ IO ()
 main = do
   end ← isEOF
   unless end $ do
-    ab ← getLine
+    line ← getLine
 
-    let a, b ∷ [Int]
-        [a, b] = map (\x → read x ∷ Int) (splitOn " " ab)
+    let pair ∷ [Int]
+        pair = map read $ splitOn " " line :: [Int]
 
-    putStrLn $ ab ++ " " ++ show $ solve [a..b]
+    let {a = head pair; b = last pair; solution = solve [a..b]} in
+      putStrLn $ line ++ " " ++ show solution
     main

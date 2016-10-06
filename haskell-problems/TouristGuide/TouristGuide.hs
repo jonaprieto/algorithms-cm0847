@@ -9,36 +9,37 @@
 module Main
   where
 
-import           Control.Monad   (unless)
+import           Control.Monad   (replicateM, unless)
 import           Data.List.Split (splitOn)
-import           System.Exit     (exitSuccess)
 import           System.IO       (isEOF)
 
 import           Data.List       (nub, sort)
 import           Data.Set        (Set, fromList, insert, member, union)
+
 
 data Edge = Edge Int Int Int
 
 instance Show Edge where
   show (Edge a b e) = show a ++ " → " ++ show b ++ " : " ++ show e ++ "\n"
 
-instance Eq (Edge) where
+instance Eq Edge where
   Edge x1 y1 z1 == Edge x2 y2 z2 = x1 == x2 && y1 == y2 && z1 == z2
 
-instance Ord (Edge) where
+instance Ord Edge where
   (Edge _ _ x) <= (Edge _ _ y) = x <= y
 
 kruskal :: [Edge] -> [Edge]
 kruskal = fst . foldl mst ([],[]) . sort
 
 mst :: ([Edge],[Set Int]) -> Edge -> ([Edge],[Set Int])
-mst (es, sets) e@(Edge p q _) = step $ extract sets where
-   step (rest, Nothing, Nothing) = (e : es, fromList [p,q] : rest)
-   step (rest, Just ps, Nothing) = (e : es, q `insert` ps : rest)
-   step (rest, Nothing, Just qs) = (e : es, p `insert` qs : rest)
-   step (rest, Just ps, Just qs) | ps == qs = (es, sets) --circle
+mst (es, sets) e@(Edge p q _) = step $ extract sets
+  where
+    step (rest, Nothing, Nothing) = (e : es, fromList [p,q] : rest)
+    step (rest, Just ps, Nothing) = (e : es, q `insert` ps : rest)
+    step (rest, Nothing, Just qs) = (e : es, p `insert` qs : rest)
+    step (rest, Just ps, Just qs) | ps == qs = (es, sets) --circle
                                  | otherwise = (e : es, ps `union` qs : rest)
-   extract = foldr f ([], Nothing, Nothing) where
+    extract = foldr f ([], Nothing, Nothing) where
        f s (list, setp, setq) =
             let list' = if member p s || member q s then list else s:list
                 setp' = if member p s then Just s else setp
@@ -71,7 +72,7 @@ inS ∷ [Edge] → [Int] → Int → [Edge]
 inS xs visited s =
   [ edge | edge ← xs,
     s == inNode edge,
-    not $ outNode edge `elem` visited
+    outNode edge `notElem` visited
   ]
 
 weightsPaths ∷ [Edge] → [Int] → Int → Int → [[Int]]
@@ -87,7 +88,7 @@ weightsPaths xs visited s t
     paths edge = weightsPaths xs (s:visited) (outNode edge) t
 
     paths' ∷ [[Int]]
-    paths' = [ (weightEdge edge):p | edge ← ins, p ← paths edge]
+    paths' = [ weightEdge edge : p | edge ← ins, p ← paths edge]
 
 readCase ∷ Int → IO ()
 readCase nCase = do
@@ -100,22 +101,22 @@ readCase nCase = do
 
     unless (n == 0 && r == 0) $ return ()
 
-    edges ∷ [Edge] ← mapM (\_→ readEdge) $ replicate r 1
+    edges ∷ [Edge] ← replicateM r readEdge
 
-    end ← isEOF
-    unless end $ do
+    end2 ← isEOF
+    unless end2 $ do
 
-      ln ← getLine
+      ln2 ← getLine
       unless (nCase == 1) $ putStr "\n"
 
       let source, goal, tourists ∷ Int
-          [source, goal, tourists] = map read $ splitOn " " ln
+          [source, goal, tourists] = map read $ splitOn " " ln2
 
-      let mst ∷ [Edge]
-          mst = map (\(Edge a b w) → Edge a b (-1*w)) $ kruskal edges
+      let mstData ∷ [Edge]
+          mstData = map (\(Edge a b w) → Edge a b (-1*w)) $ kruskal edges
 
       let tree ∷ [Edge]
-          tree = nub $ mst  ++ map (\(Edge a b w)→ Edge b a w) mst
+          tree = nub $ mstData  ++ map (\(Edge a b w)→ Edge b a w) mstData
 
       let weightspaths ∷ [[Int]]
           weightspaths = weightsPaths tree [] source goal
@@ -124,7 +125,7 @@ readCase nCase = do
           minEdges = [ if null ws then minBound ∷ Int else minimum ws | ws ← weightspaths]
 
       let minWeight ∷ Int
-          minWeight = (maximum minEdges) - 1
+          minWeight = maximum minEdges - 1
 
       let ans ∷ Int
           ans =
@@ -140,5 +141,4 @@ readCase nCase = do
 main ∷ IO ()
 main = do
   end ← isEOF
-  unless end $ do
-    readCase 1
+  unless end $ readCase 1

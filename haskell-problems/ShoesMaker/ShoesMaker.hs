@@ -1,17 +1,17 @@
+
 -- | Shoemaker Problem
 
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE UnicodeSyntax       #-}
 
+
 module Main
   where
 
 import           Control.Monad   (unless)
-import           Data.List       (intercalate, sort)
+import           Data.List       (sort)
 import           Data.List.Split (splitOn)
-import           System.Exit     (exitSuccess)
 import           System.IO       (isEOF)
-
 
 
 -- 1' : No. del trabajo
@@ -38,8 +38,6 @@ instance Eq Order where
   p1 == p2 = time p1 == time p2
     && cost p1 == cost p2
 
-  p1 /= p2 = not $ p1 == p2
-
 instance Ord Order where
    p1 <= p2 = (time p1 * cost p2)  <= (time p2 * cost p1)
 
@@ -49,7 +47,7 @@ solve orders = getIDs $ sort orders
   where
     getIDs ∷ [Order] → [ID]
     getIDs [] = []
-    getIDs orders = map numID orders
+    getIDs ods = map numID ods
 
 
 readOrder ∷ Int → ID → IO [Order]
@@ -87,7 +85,7 @@ readCase numCases = do
       ids = solve orders
 
   let ans ∷ String
-      ans = intercalate " " $ map show ids
+      ans = unwords $ map show ids
 
   putStrLn ans
   if numCases > 1 then
