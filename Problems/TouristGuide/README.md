@@ -1,5 +1,6 @@
 Solution
 ---
+
 The first solution that I came up was finding the paths from the source
 to the source and search for the minimum edge in those paths and that value
 minus one will be the most capacity for a trip then use it. (DFS(from:source,to:goal))
