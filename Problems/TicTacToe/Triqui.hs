@@ -6,8 +6,9 @@
 module Main
     where
 
-import           Data.List  (intercalate, nub)
-import           Data.Maybe (catMaybes)
+import           Control.Monad (when)
+import           Data.List     (intercalate, nub)
+import           Data.Maybe    (catMaybes)
 
 data Ficha = Vacia
            | Circulo
@@ -137,10 +138,10 @@ amenazaDiagonal1 ∷ Tablero → Jugador → Maybe Int
 amenazaDiagonal1 tablero actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
-        Just 1  → Just 1
-        Just 2  → Just 5
-        Just 3  → Just 9
-        _       → Nothing
+        Just 1 → Just 1
+        Just 2 → Just 5
+        Just 3 → Just 9
+        _      → Nothing
   | otherwise = Nothing
   where
     contenido = diagonal1 tablero
@@ -150,10 +151,10 @@ amenazaDiagonal2 ∷ Tablero → Jugador → Maybe Int
 amenazaDiagonal2 tablero actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
-        Just 1  → Just 3
-        Just 2  → Just 5
-        Just 3  → Just 7
-        _       → Nothing
+        Just 1 → Just 3
+        Just 2 → Just 5
+        Just 3 → Just 7
+        _      → Nothing
   | otherwise = Nothing
   where
     contenido = diagonal2 tablero
@@ -163,10 +164,10 @@ amenazaEsquina1 ∷ Tablero → Jugador → Maybe Int
 amenazaEsquina1 t actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
-        Just 1  → Just 1
-        Just 2  → if t!!!3 == Vacia && t!!!7 == Vacia then Just 2 else Nothing
-        Just 3  → if t!!!3 == Vacia && t!!!7 == Vacia then Just 4 else Nothing
-        _       → Nothing
+        Just 1 → Just 1
+        Just 2 → if t!!!3 == Vacia && t!!!7 == Vacia then Just 2 else Nothing
+        Just 3 → if t!!!3 == Vacia && t!!!7 == Vacia then Just 4 else Nothing
+        _      → Nothing
   | otherwise = Nothing
   where
     contenido = esquina1 t
@@ -176,10 +177,10 @@ amenazaEsquina2 ∷ Tablero → Jugador → Maybe Int
 amenazaEsquina2 t actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
-        Just 1  → if t!!!9 == Vacia then Just 2 else Nothing
-        Just 2  → if t!!!1 == Vacia && t!!!9 == Vacia then Just 3 else Nothing
-        Just 3  → if t!!!1 == Vacia then Just 6 else Nothing
-        _       → Nothing
+        Just 1 → if t!!!9 == Vacia then Just 2 else Nothing
+        Just 2 → if t!!!1 == Vacia && t!!!9 == Vacia then Just 3 else Nothing
+        Just 3 → if t!!!1 == Vacia then Just 6 else Nothing
+        _      → Nothing
   | otherwise = Nothing
   where
     contenido = esquina2 t
@@ -189,10 +190,10 @@ amenazaEsquina3 ∷ Tablero → Jugador → Maybe Int
 amenazaEsquina3 t actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
-        Just 1  → if t!!!1 == Vacia && t!!!9 == Vacia then Just 4 else Nothing
-        Just 2  → Just 7
-        Just 3  → if t!!!1 == Vacia && t!!!9 == Vacia then Just 8 else Nothing
-        _       → Nothing
+        Just 1 → if t!!!1 == Vacia && t!!!9 == Vacia then Just 4 else Nothing
+        Just 2 → Just 7
+        Just 3 → if t!!!1 == Vacia && t!!!9 == Vacia then Just 8 else Nothing
+        _      → Nothing
   | otherwise = Nothing
   where
     contenido = esquina3 t
@@ -202,10 +203,10 @@ amenazaEsquina4 ∷ Tablero → Jugador → Maybe Int
 amenazaEsquina4 t actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
-        Just 1  → if t!!!3 == Vacia && t!!!7 == Vacia then Just 6 else Nothing
-        Just 2  → if t!!!3 == Vacia && t!!!7 == Vacia then Just 8 else Nothing
-        Just 3  → Just 9
-        _       → Nothing
+        Just 1 → if t!!!3 == Vacia && t!!!7 == Vacia then Just 6 else Nothing
+        Just 2 → if t!!!3 == Vacia && t!!!7 == Vacia then Just 8 else Nothing
+        Just 3 → Just 9
+        _      → Nothing
   | otherwise = Nothing
   where
     contenido = esquina4 t
@@ -215,10 +216,10 @@ amenazaMedio1 ∷ Tablero → Jugador → Maybe Int
 amenazaMedio1 t actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
-        Just 1  → Nothing
-        Just 2  → Nothing
-        Just 3  → if t!!!6 == Vacia && t!!!7 == Vacia then Just 9 else Nothing
-        _       → Nothing
+        Just 1 → Nothing
+        Just 2 → Nothing
+        Just 3 → if t!!!6 == Vacia && t!!!7 == Vacia then Just 9 else Nothing
+        _      → Nothing
   | otherwise = Nothing
   where
     contenido = medio1 t
@@ -228,10 +229,10 @@ amenazaMedio2 ∷ Tablero → Jugador → Maybe Int
 amenazaMedio2 t actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
-        Just 1  → Nothing
-        Just 2  → if t!!!3 == Vacia && t!!!6 == Vacia then Just 8 else Nothing
-        Just 3  → if t!!!3 == Vacia && t!!!8 == Vacia then Just 9 else Nothing
-        _       → Nothing
+        Just 1 → Nothing
+        Just 2 → if t!!!3 == Vacia && t!!!6 == Vacia then Just 8 else Nothing
+        Just 3 → if t!!!3 == Vacia && t!!!8 == Vacia then Just 9 else Nothing
+        _      → Nothing
   | otherwise = Nothing
   where
     contenido = medio2 t
@@ -241,10 +242,10 @@ amenazaMedio3 ∷ Tablero → Jugador → Maybe Int
 amenazaMedio3 t actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
-        Just 1  → Just 3
-        Just 2  → if t!!!4 == Vacia && t!!!9 == Vacia then Just 7 else Nothing
-        Just 3  → Nothing
-        _       → Nothing
+        Just 1 → Just 3
+        Just 2 → if t!!!4 == Vacia && t!!!9 == Vacia then Just 7 else Nothing
+        Just 3 → Nothing
+        _      → Nothing
   | otherwise = Nothing
   where
     contenido = medio3 t
@@ -378,9 +379,7 @@ loop jugador = do
   renderGanador ganador
   putStrLn "Do you wanna play one more time? [y/n]"
   otravez ← getLine
-  if otravez == "y" || otravez == "Y"
-    then loop jugador
-    else return ()
+  when (otravez == "y" || otravez == "Y") main
 
 main ∷ IO ()
 main = do
