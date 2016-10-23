@@ -373,7 +373,7 @@ volverJugar (tablero, Circulo) = do
 
 loop ∷ Jugador → IO ()
 loop jugador = do
-  (tablero,ganador) ← volverJugar (tableroInicial, Cruz)
+  (tablero,ganador) ← volverJugar (tableroInicial, jugador)
   render tablero
   renderGanador ganador
   putStrLn "Do you wanna play one more time? [y/n]"
@@ -381,7 +381,6 @@ loop jugador = do
   if otravez == "y" || otravez == "Y"
     then loop jugador
     else return ()
-
 
 main ∷ IO ()
 main = do
