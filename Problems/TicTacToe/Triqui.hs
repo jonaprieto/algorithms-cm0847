@@ -16,9 +16,8 @@ data Ficha = Vacia
 
 instance Show Ficha where
   show Vacia   = " "
-  show Circulo = "O"
-  show Cruz    = "X"
-
+  show Circulo = "⚆"
+  show Cruz    = "×"
 
 data Fila = Fila Ficha Ficha Ficha deriving Eq
 
@@ -32,10 +31,10 @@ instance Show Tablero where
     intercalate "\n"
       [ intercalate " | "
           [if  t!!!n == Vacia then show n else show (t!!!n) |  n ← [1..3] ]
-      , replicate 9 '-'
+      , replicate 9 '—'
       , intercalate " | "
           [if  t!!!n == Vacia then show n else show (t!!!n) |  n ← [4..6] ]
-      , replicate 9 '-'
+      , replicate 9 '—'
       , intercalate " | "
           [if  t!!!n == Vacia then show n else show (t!!!n) |  n ← [7..9] ]
       ]
@@ -66,7 +65,6 @@ obtenerTablero = undefined
 (Tablero _ _ (Fila x _ _ ) ) !!! 7 = x
 (Tablero _ _ (Fila _ x _ ) ) !!! 8 = x
 (Tablero _ _ (Fila _ _ x ) ) !!! 9 = x
--- t !!! 2
 
 -- extraer una columna: t .! col
 (.!) ∷ Tablero → Int → [Ficha]
@@ -104,6 +102,14 @@ cambiarJugador Cruz    = Circulo
 cambiarJugador Circulo = Cruz
 cambiarJugador x       = x
 
+medio1 ∷ Tablero → [Ficha]
+medio1 t = [t!!!3, t!!!8, t!!!9]
+
+medio2 ∷ Tablero → [Ficha]
+medio2 t = [t!!!6, t!!!7, t!!!9]
+
+medio3 ∷ Tablero → [Ficha]
+medio3 t = [t!!!1, t!!!7, t!!!8]
 
 amenazaFila ∷ Tablero → Int → Jugador → Maybe Int
 amenazaFila tablero fila actual
@@ -121,7 +127,7 @@ amenazaColumna tablero col actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
         Nothing   → Nothing
-        Just fila → Just (3*(fila-1) + col)
+        Just fila → Just $ 3*(fila-1) + col
   | otherwise = Nothing
   where
     contenido = tablero .! col
@@ -154,55 +160,94 @@ amenazaDiagonal2 tablero actual
     otro = cambiarJugador actual
 
 amenazaEsquina1 ∷ Tablero → Jugador → Maybe Int
-amenazaEsquina1 tablero actual
+amenazaEsquina1 t actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
         Nothing → Nothing
         Just 1  → Just 1
-        Just 2  → Just 2
-        Just 3  → Just 4
+        Just 2  → if t!!!3 == Vacia && t!!!7 == Vacia then Just 2 else Nothing
+        Just 3  → if t!!!3 == Vacia && t!!!7 == Vacia then Just 4 else Nothing
   | otherwise = Nothing
   where
-    contenido = esquina1 tablero
+    contenido = esquina1 t
     otro = cambiarJugador actual
 
 amenazaEsquina2 ∷ Tablero → Jugador → Maybe Int
-amenazaEsquina2 tablero actual
+amenazaEsquina2 t actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
         Nothing → Nothing
-        Just 1  → Just 2
-        Just 2  → Just 3
-        Just 3  → Just 6
+        Just 1  → if t!!!9 == Vacia then Just 2 else Nothing
+        Just 2  → if t!!!1 == Vacia && t!!!9 == Vacia then Just 3 else Nothing
+        Just 3  → if t!!!1 == Vacia then Just 6 else Nothing
   | otherwise = Nothing
   where
-    contenido = esquina2 tablero
+    contenido = esquina2 t
     otro = cambiarJugador actual
 
 amenazaEsquina3 ∷ Tablero → Jugador → Maybe Int
-amenazaEsquina3 tablero actual
+amenazaEsquina3 t actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
         Nothing → Nothing
-        Just 1  → Just 4
+        Just 1  → if t!!!1 == Vacia && t!!!9 == Vacia then Just 4 else Nothing
         Just 2  → Just 7
-        Just 3  → Just 8
+        Just 3  → if t!!!1 == Vacia && t!!!9 == Vacia then Just 8 else Nothing
   | otherwise = Nothing
   where
-    contenido = esquina3 tablero
+    contenido = esquina3 t
     otro = cambiarJugador actual
 
 amenazaEsquina4 ∷ Tablero → Jugador → Maybe Int
-amenazaEsquina4 tablero actual
+amenazaEsquina4 t actual
   | contarFicha contenido otro == 2 =
       case encontrarPosicion contenido 1 of
         Nothing → Nothing
-        Just 1  → Just 6
-        Just 2  → Just 8
+        Just 1  → if t!!!3 == Vacia && t!!!7 == Vacia then Just 6 else Nothing
+        Just 2  → if t!!!3 == Vacia && t!!!7 == Vacia then Just 8 else Nothing
         Just 3  → Just 9
   | otherwise = Nothing
   where
-    contenido = esquina4 tablero
+    contenido = esquina4 t
+    otro = cambiarJugador actual
+
+amenazaMedio1 ∷ Tablero → Jugador → Maybe Int
+amenazaMedio1 t actual
+  | contarFicha contenido otro == 2 =
+      case encontrarPosicion contenido 1 of
+        Nothing → Nothing
+        Just 1  → Just 3
+        Just 2  → Just 8
+        Just 3  → if t!!!6 == Vacia && t!!!7 == Vacia then Just 9 else Nothing
+  | otherwise = Nothing
+  where
+    contenido = medio1 t
+    otro = cambiarJugador actual
+
+amenazaMedio2 ∷ Tablero → Jugador → Maybe Int
+amenazaMedio2 t actual
+  | contarFicha contenido otro == 2 =
+      case encontrarPosicion contenido 1 of
+        Nothing → Nothing
+        Just 1  → Just 3
+        Just 2  → if t!!!3 == Vacia && t!!!6 == Vacia then Just 8 else Nothing
+        Just 3  → if t!!!3 == Vacia && t!!!8 == Vacia then Just 9 else Nothing
+  | otherwise = Nothing
+  where
+    contenido = medio2 t
+    otro = cambiarJugador actual
+
+amenazaMedio3 ∷ Tablero → Jugador → Maybe Int
+amenazaMedio3 t actual
+  | contarFicha contenido otro == 2 =
+      case encontrarPosicion contenido 1 of
+        Nothing → Nothing
+        Just 1  → Just 3
+        Just 2  → if t!!!4 == Vacia && t!!!9 == Vacia then Just 7 else Nothing
+        Just 3  → Just 8
+  | otherwise = Nothing
+  where
+    contenido = medio3 t
     otro = cambiarJugador actual
 
 encontrarPosicion ∷ [Ficha] → Int → Maybe Int
@@ -213,14 +258,17 @@ encontrarPosicion (f:fs) col
 
 amenazas ∷ Tablero → Jugador →  [Int]
 amenazas tablero player = catMaybes $
-     [ amenazaFila tablero fila player    | fila  ← [1..3] ]
-  ++ [ amenazaColumna tablero col player  | col   ← [1..3] ]
+     [ amenazaFila tablero fila player   | fila  ← [1..3] ]
+  ++ [ amenazaColumna tablero col player | col   ← [1..3] ]
   ++ [ amenazaDiagonal1 tablero player ]
   ++ [ amenazaDiagonal2 tablero player ]
   ++ [ amenazaEsquina1 tablero player ]
   ++ [ amenazaEsquina2 tablero player ]
   ++ [ amenazaEsquina3 tablero player ]
   ++ [ amenazaEsquina4 tablero player ]
+  ++ [ amenazaMedio1 tablero player ]
+  ++ [ amenazaMedio2 tablero player ]
+  ++ [ amenazaMedio3 tablero player ]
 
 estaLleno ∷ Tablero → Bool
 estaLleno t =
@@ -273,62 +321,54 @@ llenarVacio (t, pos:ls ) p
     nuevoTablero ∷ Tablero
     nuevoTablero = jugar t pos p
 
-render :: Tablero -> IO ()
+render ∷ Tablero → IO ()
 render tablero = do
   putStrLn $ replicate 100 '\n'
   print tablero
   putStrLn "\n"
 
-renderGanador :: Jugador -> IO ()
+renderGanador ∷ Jugador → IO ()
 renderGanador ganador =
   case ganador of
-    Vacia   -> putStrLn "It was a draw"
-    Circulo -> putStrLn "You Won"
-    Cruz    -> putStrLn "Machine Won"
+    Vacia   → putStrLn "It was a draw"
+    Circulo → putStrLn "You Won"
+    Cruz    → putStrLn "Machine Won"
 
 volverJugar ∷ (Tablero, Jugador) → IO (Tablero, Jugador)
 volverJugar (tablero, Cruz) = do
   render tablero
   if estaLleno tablero
-    then do
-      putStrLn $ replicate 100 '\n'
-      putStrLn "Draw!"
-      return (tablero, Vacia)
+    then return (tablero, Vacia) -- empate
     else
       case amenaza tablero Circulo of
-        Nothing →
+        Just position → do -- atacar
+          let nuevoTablero = jugar tablero position Cruz
+          return (nuevoTablero, Cruz)
+        Nothing → -- defender
           case amenaza tablero Cruz of
             Nothing → do
               let estrategia = [5,1,3,7,9,4,6,2,8]
               let (nuevoTablero,_) = llenarVacio (tablero,estrategia) Cruz
               volverJugar (nuevoTablero, Circulo)
-            Just positionCirculo → do
-              let nuevoTablero = jugar tablero positionCirculo Cruz
+            Just positionCruz → do
+              let nuevoTablero = jugar tablero positionCruz Cruz
               volverJugar (nuevoTablero, Circulo)
-        Just position → do
-          let nuevoTablero = jugar tablero position Cruz
-          putStrLn $ replicate 100 '\n'
-          return (nuevoTablero, Cruz)
 
 volverJugar (tablero, Circulo) = do
   render tablero
   if estaLleno tablero
-    then do
-      putStrLn $ replicate 100 '\n'
-      putStrLn "Draw!"
-      return (tablero, Vacia)
+    then return (tablero, Vacia) -- empate
     else do
       putStrLn "What is your move? choose a number 1..9"
       jugada ← getLine
       let intJugada = read jugada ∷ Int
-      let listaAmenazas = amenazas tablero Cruz
       let nuevoTablero = jugar tablero intJugada Circulo
       if nuevoTablero == tablero
         then volverJugar (tablero, Circulo)
-        else
+        else do
+          let listaAmenazas = amenazas tablero Cruz
           if intJugada `elem` listaAmenazas
-            then do
-              return (nuevoTablero, Circulo)
+            then return (nuevoTablero, Circulo)
             else volverJugar (nuevoTablero, Cruz)
 
 main ∷ IO ()
