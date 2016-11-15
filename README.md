@@ -1,9 +1,9 @@
 Algorithms - CM0847 (2016-2)
 ---
 
-This repository keeps implementation of some algorithms written in `Haskell`, basically, algorithms from the literature of the course of algorithms at EAFIT University. Some solutions to the programming challanges are located in the haskell-problems directory. 
+This repository keeps implementation of some algorithms written in `Haskell`, basically, algorithms from the literature of the course of algorithms at EAFIT University. Some solutions to the programming challanges are located in the Problems directory. 
 
-Lecturer: Juan Francisco Cardona McCormick `@fcardona`
+Lecturer: Juan Francisco Cardona McCormick @fcardona`
 
 Links
 ---
